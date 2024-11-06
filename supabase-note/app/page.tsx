@@ -1,4 +1,4 @@
-import UI from "./ui";
+import UI from "./UI";
 
 export default function Home() {
   return <UI />;
