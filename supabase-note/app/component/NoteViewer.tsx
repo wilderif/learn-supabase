@@ -1,18 +1,50 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabase";
 
-export default function NoteViewer({
-  note, // {id: 1, title: "", content: ""}
-}) {
+export default function NoteViewer({ note, setActiveNoteId, fetchNotes }) {
   const [title, setTitle] = useState(note?.title);
   const [content, setContent] = useState(note?.content);
   const [isEditing, setIsEditing] = useState(false);
+
+  const onEdit = async () => {
+    if (!title || !content) {
+      alert("제목과 내용을 입력해주세요.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("note")
+      .update({ title, content })
+      .eq("id", note.id);
+
+    if (error) {
+      alert(error.message);
+    }
+
+    await fetchNotes();
+    setIsEditing(false);
+  };
+
+  const onDelete = async () => {
+    const { error } = await supabase.from("note").delete().eq("id", note.id);
+
+    if (error) {
+      alert(error.message);
+    }
+
+    await fetchNotes();
+    setIsEditing(false);
+    setActiveNoteId(null);
+  };
+
   useEffect(() => {
     setTitle(note?.title);
     setContent(note?.content);
     setIsEditing(false);
   }, [note]);
+
   return (
     <div className="w-2/3 p-2 flex flex-col gap-2 absolute top-0 bottom-0 right-0">
       {isEditing ? (
@@ -41,10 +73,16 @@ export default function NoteViewer({
       <div className="w-full flex justify-end gap-2">
         {isEditing ? (
           <>
-            <button className="py-1 px-3 rounded-full border-2 border-green-600 hover:bg-green-200 transition-all duration-300 ease-in-out">
+            <button
+              onClick={() => onEdit()}
+              className="py-1 px-3 rounded-full border-2 border-green-600 hover:bg-green-200 transition-all duration-300 ease-in-out"
+            >
               저장
             </button>
-            <button className="py-1 px-3 rounded-full border-2 border-red-600 hover:bg-red-200 transition-all duration-300 ease-in-out">
+            <button
+              onClick={() => onDelete()}
+              className="py-1 px-3 rounded-full border-2 border-red-600 hover:bg-red-200 transition-all duration-300 ease-in-out"
+            >
               삭제
             </button>
           </>
