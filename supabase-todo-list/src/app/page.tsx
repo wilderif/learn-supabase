@@ -1,3 +1,8 @@
 export default function Home() {
-  return <main>TODO List</main>;
+  return (
+    <main>
+      TODO List
+      <i className="fas fa-check"></i>
+    </main>
+  );
 }
