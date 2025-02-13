@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate-types": "npx supabase gen types typescript --project-id wrsfgakrslgxixbrqkle --schema public > types_db.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -29,6 +30,7 @@
     "postcss": "^8",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
+    "supabase": "^2.12.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
