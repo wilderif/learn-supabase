@@ -1,11 +1,7 @@
 'use server';
 
-import { Database } from '@/types_db';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
-
-export type TodoRow = Database['public']['Tables']['todo']['Row'];
-export type TodoRowInsert = Database['public']['Tables']['todo']['Insert'];
-export type TodoRowUpdate = Database['public']['Tables']['todo']['Update'];
+import { TodoRow, TodoRowInsert, TodoRowUpdate } from '@/types/types';
 
 function handleError(error: Error) {
   console.error(error);
