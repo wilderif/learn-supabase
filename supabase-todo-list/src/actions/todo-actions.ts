@@ -8,7 +8,7 @@ function handleError(error: Error) {
   throw new Error(error.message);
 }
 
-export async function getTodos({ searchInput = '' }): Promise<TodoRow[]> {
+export async function getTodos(searchInput = ''): Promise<TodoRow[]> {
   const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase
@@ -49,6 +49,18 @@ export async function updateTodo(todo: TodoRowUpdate) {
       updated_at: new Date().toISOString(),
     })
     .eq('id', todo.id!);
+
+  if (error) {
+    handleError(error);
+  }
+
+  return data;
+}
+
+export async function deleteTodo(id: number) {
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase.from('todo').delete().eq('id', id);
 
   if (error) {
     handleError(error);

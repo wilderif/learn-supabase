@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Checkbox, IconButton, Spinner } from '@material-tailwind/react';
 import { TodoRow } from '@/types/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateTodo } from '@/actions/todo-actions';
+import { updateTodo, deleteTodo } from '@/actions/todo-actions';
 
 export default function Todo({ todo }: { todo: TodoRow }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -23,6 +23,14 @@ export default function Todo({ todo }: { todo: TodoRow }) {
 
     onSuccess: () => {
       setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
+
+  const deleteTodoMutation = useMutation({
+    mutationFn: () => deleteTodo(todo.id),
+
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
     },
   });
@@ -70,8 +78,16 @@ export default function Todo({ todo }: { todo: TodoRow }) {
         </IconButton>
       )}
 
-      <IconButton>
-        <i className="fas fa-trash" />
+      <IconButton
+        onClick={() => {
+          deleteTodoMutation.mutate();
+        }}
+      >
+        {deleteTodoMutation.isPending ? (
+          <Spinner />
+        ) : (
+          <i className="fas fa-trash" />
+        )}
       </IconButton>
     </div>
   );

@@ -11,7 +11,7 @@ export default function UI() {
 
   const todosQuery = useQuery({
     queryKey: ['todos'],
-    queryFn: () => getTodos({ searchInput }),
+    queryFn: () => getTodos(searchInput),
   });
 
   const createTodoMutation = useMutation({
