@@ -1,20 +1,42 @@
 'use client';
 
 import { useState } from 'react';
-import { Checkbox, IconButton } from '@material-tailwind/react';
+import { Checkbox, IconButton, Spinner } from '@material-tailwind/react';
 import { TodoRow } from '@/types/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { updateTodo } from '@/actions/todo-actions';
 
 export default function Todo({ todo }: { todo: TodoRow }) {
   const [isEditing, setIsEditing] = useState(false);
   const [completed, setCompleted] = useState(todo.completed);
   const [title, setTitle] = useState(todo.title);
 
+  const queryClient = useQueryClient();
+
+  const updateTodoMutation = useMutation({
+    mutationFn: () =>
+      updateTodo({
+        id: todo.id,
+        title: title,
+        completed: completed,
+      }),
+
+    onSuccess: () => {
+      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+  });
+
   return (
     <div className="flex w-full items-center gap-1">
       <Checkbox
         checked={completed}
-        onChange={(e) => setCompleted(e.target.checked)}
+        onChange={(e) => {
+          setCompleted(e.target.checked);
+          updateTodoMutation.mutate();
+        }}
       />
+
       {isEditing ? (
         <input
           className="flex-1 border-b border-b-black pb-1"
@@ -26,11 +48,24 @@ export default function Todo({ todo }: { todo: TodoRow }) {
       )}
 
       {isEditing ? (
-        <IconButton onClick={() => setIsEditing(false)}>
-          <i className="fas fa-check" />
+        <IconButton
+          onClick={() => {
+            setIsEditing(false);
+            updateTodoMutation.mutate();
+          }}
+        >
+          {updateTodoMutation.isPending ? (
+            <Spinner />
+          ) : (
+            <i className="fas fa-check" />
+          )}
         </IconButton>
       ) : (
-        <IconButton onClick={() => setIsEditing(true)}>
+        <IconButton
+          onClick={() => {
+            setIsEditing(true);
+          }}
+        >
           <i className="fas fa-pen" />
         </IconButton>
       )}
