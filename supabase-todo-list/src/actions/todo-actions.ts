@@ -8,8 +8,14 @@ function handleError(error: Error) {
   throw new Error(error.message);
 }
 
-export async function getTodos(searchInput = ''): Promise<TodoRow[]> {
+export async function getTodos({
+  searchInput = '',
+}: {
+  searchInput: string;
+}): Promise<TodoRow[]> {
   const supabase = await createServerSupabaseClient();
+
+  console.log('searchInput: ', searchInput);
 
   const { data, error } = await supabase
     .from('todo')
