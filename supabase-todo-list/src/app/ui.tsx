@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getTodos } from '@/actions/todo-actions';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { getTodos, createTodo } from '@/actions/todo-actions';
 import { Button, Input } from '@material-tailwind/react';
 import Todo from '@/components/todo';
 
@@ -12,6 +12,18 @@ export default function UI() {
   const todosQuery = useQuery({
     queryKey: ['todos'],
     queryFn: () => getTodos({ searchInput }),
+  });
+
+  const createTodoMutation = useMutation({
+    mutationFn: () =>
+      createTodo({
+        title: 'New Todo',
+        completed: false,
+      }),
+
+    onSuccess: () => {
+      todosQuery.refetch();
+    },
   });
 
   return (
@@ -31,7 +43,10 @@ export default function UI() {
       {todosQuery.data &&
         todosQuery.data.map((todo) => <Todo key={todo.id} todo={todo} />)}
 
-      <Button>
+      <Button
+        onClick={() => createTodoMutation.mutate()}
+        loading={createTodoMutation.isPending}
+      >
         <i className="fas fa-plus mr-2" />
         ADD TODO
       </Button>
