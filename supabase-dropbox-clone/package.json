@@ -2,7 +2,7 @@
   "name": "supabase-dropbox-clone",
   "version": "0.1.0",
   "private": true,
- "scripts": {
+  "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -32,7 +32,6 @@
     "postcss": "^8",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "supabase": "^2.12.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
