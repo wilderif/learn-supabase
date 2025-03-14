@@ -23,6 +23,9 @@ importers:
       '@supabase/ssr':
         specifier: ^0.5.2
         version: 0.5.2(@supabase/supabase-js@2.49.1)
+      '@supabase/storage-js':
+        specifier: ^2.7.1
+        version: 2.7.1
       '@tanstack/react-query':
         specifier: ^5.66.0
         version: 5.67.3(react@18.3.1)

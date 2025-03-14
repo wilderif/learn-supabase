@@ -3,9 +3,17 @@
 import { useRef } from 'react';
 import { Button } from '@material-tailwind/react';
 import { uploadFile } from '@/actions/storageActions';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function FileDragDropZone() {
   const fileRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const uploadImageMutation = useMutation({
+    mutationFn: uploadFile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['searchImage'] });
+    },
+  });
 
   return (
     <form
@@ -16,14 +24,15 @@ export default function FileDragDropZone() {
         if (file) {
           const formData = new FormData();
           formData.append('file', file);
-          const result = await uploadFile(formData);
-          console.log(result);
+          uploadImageMutation.mutate(formData);
         }
       }}
     >
       <input ref={fileRef} type="file" className="" />
       <p>파일을 여기에 끌어다 놓거나 클릭하여 업로드하세요</p>
-      <Button type="submit">파일 업로드</Button>
+      <Button loading={uploadImageMutation.isPending} type="submit">
+        파일 업로드
+      </Button>
     </form>
   );
 }

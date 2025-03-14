@@ -22,7 +22,7 @@ export async function uploadFile(formData: FormData) {
   return data;
 }
 
-export async function searchFile(search: string = '') {
+export async function searchFiles(search: string = '') {
   const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase.storage
