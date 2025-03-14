@@ -11,15 +11,25 @@ function handleError(error: Error | null) {
 
 export async function uploadFile(formData: FormData) {
   const supabase = await createServerSupabaseClient();
-  const file = formData.get('file') as File;
+  const files = formData.getAll('file') as File[];
 
-  const { data, error } = await supabase.storage
-    .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!)
-    .upload(file.name, file, { upsert: true }); // upsert: true 는 파일이 이미 존재하면 덮어쓰기 하는 옵션
+  console.log('In');
+  console.log(files);
+  console.log(formData);
 
-  handleError(error);
+  const results = await Promise.all(
+    files.map(async (file) => {
+      const { data, error } = await supabase.storage
+        .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!)
+        .upload(file.name, file, { upsert: true }); // upsert: true 는 파일이 이미 존재하면 덮어쓰기 하는 옵션
 
-  return data;
+      handleError(error);
+
+      return data;
+    }),
+  );
+
+  return results;
 }
 
 export async function searchFiles(search: string = '') {

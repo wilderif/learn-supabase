@@ -17,16 +17,19 @@ export default function FileDragDropZone() {
   });
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      const formData = new FormData();
+    if (acceptedFiles.length === 0) return;
+
+    const formData = new FormData();
+    acceptedFiles.forEach((file) => {
       formData.append('file', file);
-      uploadImageMutation.mutate(formData);
-    }
+    });
+
+    uploadImageMutation.mutate(formData);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    multiple: true,
   });
 
   return (
