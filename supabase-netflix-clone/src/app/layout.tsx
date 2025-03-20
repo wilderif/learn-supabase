@@ -3,12 +3,14 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/providers/material-tailwind-theme-provider';
 import ReactQueryClientProvider from '@/providers/react-query-client-provider';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Supabase ToDo List',
-  description: 'ToDo List with Supabase',
+  title: 'TMDbFlix',
+  description: 'TMDbFlix',
 };
 
 export default function RootLayout({
@@ -29,7 +31,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ReactQueryClientProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <Header />
+            {children}
+            <Footer />
+          </ThemeProvider>
         </ReactQueryClientProvider>
       </body>
     </html>
