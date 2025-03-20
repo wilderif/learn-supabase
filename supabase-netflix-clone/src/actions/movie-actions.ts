@@ -3,10 +3,13 @@
 import { createServerSupabaseClient } from '@/utils/supabase/server';
 import { handleError } from '@/utils/handle-error';
 
-export async function getAllMovies() {
+export async function getMovies(search: string) {
   const supabase = await createServerSupabaseClient();
 
-  const { data, error } = await supabase.from('movie').select('*');
+  const { data, error } = await supabase
+    .from('movie')
+    .select('*')
+    .ilike('title', `%${search}%`);
 
   if (error) {
     handleError(error);
