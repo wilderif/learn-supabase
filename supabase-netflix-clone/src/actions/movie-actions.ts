@@ -17,3 +17,19 @@ export async function getMovies(search: string) {
 
   return data;
 }
+
+export async function getMovie(id: number) {
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('movie')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    handleError(error);
+  }
+
+  return data;
+}
