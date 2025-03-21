@@ -4,6 +4,8 @@ import './globals.css';
 import { ThemeProvider } from '@/providers/material-tailwind-theme-provider';
 import ReactQueryClientProvider from '@/providers/react-query-client-provider';
 import RecoilProvider from '@/providers/recoil-provider';
+import MainLayout from '@/components/layouts/main-layout';
+import Auth from '@/components/auth';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,6 +19,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const logedIn = false;
+
   return (
     <html lang="en">
       <head>
@@ -32,7 +36,7 @@ export default function RootLayout({
         <RecoilProvider>
           <ReactQueryClientProvider>
             <ThemeProvider>
-              {children}
+              {logedIn ? <MainLayout>{children}</MainLayout> : <Auth />}
             </ThemeProvider>
           </ReactQueryClientProvider>
         </RecoilProvider>
@@ -40,4 +44,3 @@ export default function RootLayout({
     </html>
   );
 }
-
