@@ -7,6 +7,7 @@ import RecoilProvider from '@/providers/recoil-provider';
 import MainLayout from '@/components/layouts/main-layout';
 import Auth from '@/components/auth';
 import { createServerSupabaseClient } from '@/utils/supabase/server';
+import AuthProvider from '@/providers/auth-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,7 +41,9 @@ export default async function RootLayout({
         <RecoilProvider>
           <ReactQueryClientProvider>
             <ThemeProvider>
-              {session?.user ? <MainLayout>{children}</MainLayout> : <Auth />}
+              <AuthProvider accessToken={session?.access_token ?? ''}>
+                {session?.user ? <MainLayout>{children}</MainLayout> : <Auth />}
+              </AuthProvider>
             </ThemeProvider>
           </ReactQueryClientProvider>
         </RecoilProvider>
