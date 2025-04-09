@@ -1,50 +1,66 @@
 'use client';
 
-import { useState } from 'react';
 import Person from './person';
 import { useRecoilState } from 'recoil';
-import { selectedIndexState } from '@/utils/recoil/atoms';
+import {
+  selectedUserIdState,
+  selectedUserIndexState,
+} from '@/utils/recoil/atoms';
+import { getAllUsers } from '@/actions/chat-actions';
+import { useQuery } from '@tanstack/react-query';
+import { User } from '@supabase/supabase-js';
 
-export default function ChatPeopleList() {
-  const [selectedIndex, setSelectedIndex] = useRecoilState(selectedIndexState);
+export default function ChatPeopleList({
+  loggedInUser,
+}: {
+  loggedInUser: User;
+}) {
+  const [selectedUserId, setSelectedUserId] =
+    useRecoilState(selectedUserIdState);
+  const [selectedUserIndex, setSelectedUserIndex] = useRecoilState(
+    selectedUserIndexState,
+  );
+
+  const getAllUsersQuery = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const allUsers = await getAllUsers();
+
+      // Id 하나로 테스트하기 위해 주석처리
+      // return allUsers.filter((user) => user.id !== loggedInUser?.id);
+
+      return allUsers.filter((user) => user.id === loggedInUser?.id);
+    },
+  });
 
   return (
     <div className="flex h-screen min-w-60 flex-col bg-gray-50">
+      {getAllUsersQuery.data?.map((user, index) => (
+        <Person
+          key={user.id}
+          userIndex={index}
+          userId={user.id}
+          userName={user.email?.split('@')[0]!}
+          onlineAt="2021-01-01"
+          isActive={user.id === selectedUserId}
+          onChatScreen={false}
+          onClick={() => {
+            setSelectedUserId(user.id);
+            setSelectedUserIndex(index);
+          }}
+        />
+      ))}
       <Person
-        userIndex={0}
-        userId="1"
-        userName="John Doe"
-        onlineAt="2025-04-09T12:00:00.000Z"
-        isActive={selectedIndex === 0}
+        userIndex={getAllUsersQuery.data?.length ?? 0}
+        userId="dummy-user-id"
+        userName="Dummy User"
+        onlineAt="2021-01-01"
+        isActive={selectedUserId === 'dummy-user-id'}
         onChatScreen={false}
-        onClick={() => setSelectedIndex(0)}
-      />
-      <Person
-        userIndex={1}
-        userId="2"
-        userName="Jane Doe"
-        onlineAt="2025-04-09T12:00:00.000Z"
-        isActive={selectedIndex === 1}
-        onChatScreen={false}
-        onClick={() => setSelectedIndex(1)}
-      />
-      <Person
-        userIndex={2}
-        userId="1"
-        userName="John Doe"
-        onlineAt="2025-04-09T12:00:00.000Z"
-        isActive={selectedIndex === 2}
-        onChatScreen={false}
-        onClick={() => setSelectedIndex(2)}
-      />
-      <Person
-        userIndex={3}
-        userId="4"
-        userName="Jane Doe"
-        onlineAt="2025-04-09T12:00:00.000Z"
-        isActive={selectedIndex === 3}
-        onChatScreen={false}
-        onClick={() => setSelectedIndex(3)}
+        onClick={() => {
+          setSelectedUserId('dummy-user-id');
+          setSelectedUserIndex(getAllUsersQuery.data?.length ?? 0);
+        }}
       />
     </div>
   );

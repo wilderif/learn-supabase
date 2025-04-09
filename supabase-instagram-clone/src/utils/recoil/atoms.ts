@@ -1,11 +1,11 @@
 import { atom } from 'recoil';
 
-export const searchState = atom({
-  key: 'searchState',
+export const selectedUserIdState = atom({
+  key: 'selectedUserIdState',
   default: '',
 });
 
-export const selectedIndexState = atom({
-  key: 'selectedIndexState',
+export const selectedUserIndexState = atom({
+  key: 'selectedUserIndexState',
   default: 0,
 });

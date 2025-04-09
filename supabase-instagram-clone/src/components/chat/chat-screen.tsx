@@ -4,18 +4,28 @@ import { Button } from '@material-tailwind/react';
 import Message from './message';
 import Person from './person';
 import { useRecoilValue } from 'recoil';
-import { selectedIndexState } from '@/utils/recoil/atoms';
+import {
+  selectedUserIdState,
+  selectedUserIndexState,
+} from '@/utils/recoil/atoms';
+import { getUserById } from '@/actions/chat-actions';
+import { useQuery } from '@tanstack/react-query';
 
 export default function ChatScreen() {
-  const selectedIndex = useRecoilValue(selectedIndexState);
+  const selectedUserId = useRecoilValue(selectedUserIdState);
+  const selectedUserIndex = useRecoilValue(selectedUserIndexState);
+  const getUserByIdQuery = useQuery({
+    queryKey: ['user', selectedUserId],
+    queryFn: () => getUserById(selectedUserId),
+  });
 
   return (
     <div className="flex h-screen w-full flex-col">
       {/* Actice 유저 */}
       <Person
-        userIndex={selectedIndex}
-        userId="1"
-        userName="John Doe"
+        userIndex={selectedUserIndex}
+        userId={selectedUserId}
+        userName={getUserByIdQuery.data?.email?.split('@')[0]! || 'dummy-user'}
         onlineAt="2025-04-09T12:00:00.000Z"
         isActive={false}
         onChatScreen={true}
