@@ -59,6 +59,9 @@ export async function sendMessage(userId: string, message: string) {
 }
 
 export async function getAllMessages(receiverId: string) {
+  if (!receiverId) {
+    return [];
+  }
   const supabase = await createServerSupabaseClient();
 
   const {

@@ -14,9 +14,11 @@ import {
   getUserById,
 } from '@/actions/chat-actions';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createBrowserSupabaseClient } from '@/utils/supabase/client';
 
 export default function ChatScreen() {
+  const supabase = createBrowserSupabaseClient();
   const selectedUserId = useRecoilValue(selectedUserIdState);
   const selectedUserIndex = useRecoilValue(selectedUserIndexState);
   const [message, setMessage] = useState('');
@@ -38,6 +40,25 @@ export default function ChatScreen() {
     queryKey: ['messages', selectedUserId],
     queryFn: () => getAllMessages(selectedUserId),
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('message_postgres_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'message' },
+        (payload) => {
+          if (payload.eventType === 'INSERT' && !payload.errors) {
+            getAllMessagesQuery.refetch();
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
 
   return (
     <div className="flex h-screen w-full flex-col">
