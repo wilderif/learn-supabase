@@ -8,15 +8,35 @@ import {
   selectedUserIdState,
   selectedUserIndexState,
 } from '@/utils/recoil/atoms';
-import { getUserById } from '@/actions/chat-actions';
-import { useQuery } from '@tanstack/react-query';
+import {
+  getAllMessages,
+  sendMessage,
+  getUserById,
+} from '@/actions/chat-actions';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 export default function ChatScreen() {
   const selectedUserId = useRecoilValue(selectedUserIdState);
   const selectedUserIndex = useRecoilValue(selectedUserIndexState);
+  const [message, setMessage] = useState('');
+
   const getUserByIdQuery = useQuery({
     queryKey: ['user', selectedUserId],
     queryFn: () => getUserById(selectedUserId),
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: () => sendMessage(selectedUserId, message),
+    onSuccess: () => {
+      setMessage('');
+      getAllMessagesQuery.refetch();
+    },
+  });
+
+  const getAllMessagesQuery = useQuery({
+    queryKey: ['messages', selectedUserId],
+    queryFn: () => getAllMessages(selectedUserId),
   });
 
   return (
@@ -34,16 +54,13 @@ export default function ChatScreen() {
 
       {/* 대화 내용 */}
       <div className="flex w-full flex-1 flex-col gap-2 overflow-y-scroll px-4 py-2">
-        <Message
-          isFromMe={false}
-          message="안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세 요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요"
-        />
-        <Message isFromMe={true} message="안녕하세요" />
-        <Message
-          isFromMe={true}
-          message="안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요"
-        />
-        <Message isFromMe={true} message="안녕하세요" />
+        {getAllMessagesQuery.data?.map((message) => (
+          <Message
+            key={message.id}
+            isFromMe={message.receiver === selectedUserId}
+            message={message.message}
+          />
+        ))}
       </div>
 
       {/* 대화 입력 */}
@@ -52,9 +69,16 @@ export default function ChatScreen() {
           type="text"
           placeholder="메시지를 입력하세요"
           className="w-full flex-1 rounded-md border-2 border-light-blue-600 px-2 py-1"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
         />
-        <Button color="light-blue" className="min-w-20">
-          전송
+        <Button
+          color="light-blue"
+          className="min-w-20"
+          onClick={() => sendMessageMutation.mutate()}
+          disabled={sendMessageMutation.isPending}
+        >
+          {sendMessageMutation.isPending ? '전송중...' : '전송'}
         </Button>
       </div>
     </div>
