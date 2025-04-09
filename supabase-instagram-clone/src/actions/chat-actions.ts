@@ -58,4 +58,29 @@ export async function sendMessage(userId: string, message: string) {
   return data;
 }
 
-export async function getAllMessages(userId: string) {}
+export async function getAllMessages(receiverId: string) {
+  const supabase = await createServerSupabaseClient();
+
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.user) {
+    throw new Error('User is not authorized');
+  }
+
+  const { data, error: getAllMessagesError } = await supabase
+    .from('message')
+    .select('*')
+    .or(
+      `and(sender.eq.${session.user.id},receiver.eq.${receiverId}),and(sender.eq.${receiverId},receiver.eq.${session.user.id})`,
+    )
+    .order('created_at', { ascending: true });
+
+  if (getAllMessagesError) {
+    throw new Error(getAllMessagesError.message);
+  }
+
+  return data;
+}
