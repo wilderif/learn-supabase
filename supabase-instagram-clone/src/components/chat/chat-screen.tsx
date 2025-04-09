@@ -33,7 +33,7 @@ export default function ChatScreen() {
       />
 
       {/* 대화 내용 */}
-      <div className="flex w-full flex-1 flex-col gap-2 px-4 py-2">
+      <div className="flex w-full flex-1 flex-col gap-2 overflow-y-scroll px-4 py-2">
         <Message
           isFromMe={false}
           message="안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세 요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요안녕하세요"
