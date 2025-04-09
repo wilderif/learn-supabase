@@ -26,6 +26,7 @@ export default function Person({
   onChatScreen: boolean;
   onClick: () => void;
 }) {
+  console.log(onlineAt);
   return (
     <div
       className={`flex min-w-60 ${!onChatScreen && 'cursor-pointer'} items-center gap-4 p-4 ${
@@ -41,7 +42,7 @@ export default function Person({
       <div className="flex-1">
         <p className="text-lg font-bold text-black">{userName}</p>
         <p className="text-sm text-gray-500">
-          {timeAgo.format(Date.parse(onlineAt))}
+          {onlineAt && timeAgo.format(Date.parse(onlineAt))}
         </p>
       </div>
     </div>

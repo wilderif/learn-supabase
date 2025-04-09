@@ -5,10 +5,13 @@ import { useRecoilState } from 'recoil';
 import {
   selectedUserIdState,
   selectedUserIndexState,
+  presenceState,
 } from '@/utils/recoil/atoms';
 import { getAllUsers } from '@/actions/chat-actions';
 import { useQuery } from '@tanstack/react-query';
 import { User } from '@supabase/supabase-js';
+import { createBrowserSupabaseClient } from '@/utils/supabase/client';
+import { useEffect } from 'react';
 
 export default function ChatPeopleList({
   loggedInUser,
@@ -20,6 +23,7 @@ export default function ChatPeopleList({
   const [selectedUserIndex, setSelectedUserIndex] = useRecoilState(
     selectedUserIndexState,
   );
+  const [presence, setPresence] = useRecoilState(presenceState);
 
   const getAllUsersQuery = useQuery({
     queryKey: ['users'],
@@ -33,6 +37,37 @@ export default function ChatPeopleList({
     },
   });
 
+  const supabase = createBrowserSupabaseClient();
+  useEffect(() => {
+    const channel = supabase.channel('online_users', {
+      config: {
+        presence: {
+          key: loggedInUser.id,
+        },
+      },
+    });
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const newState = channel.presenceState();
+        const newStateObject = JSON.parse(JSON.stringify(newState));
+        setPresence(newStateObject);
+      })
+      .subscribe(async (status) => {
+        if (status !== 'SUBSCRIBED') {
+          return;
+        }
+
+        await channel.track({
+          onlineAt: new Date().toISOString(),
+        });
+      });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+
   return (
     <div className="flex h-screen min-w-60 flex-col bg-gray-50">
       {getAllUsersQuery.data?.map((user, index) => (
@@ -41,7 +76,7 @@ export default function ChatPeopleList({
           userIndex={index}
           userId={user.id}
           userName={user.email?.split('@')[0]!}
-          onlineAt="2021-01-01"
+          onlineAt={presence?.[user.id]?.[0]?.onlineAt || null}
           isActive={user.id === selectedUserId}
           onChatScreen={false}
           onClick={() => {
